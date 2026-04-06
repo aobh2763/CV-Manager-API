@@ -4,7 +4,7 @@
 
 ## Part 1 — Project Setup & Data Modeling
 - Generate the 3 resources: `cv`, `user`, `skill`
-- Define all entity fields (Cv, User, Skill)
+- Define all entity fields (CV, User, Skill)
 - Set up TypeORM relations (many-to-many, many-to-one)
 - Configure `TypeOrmModule` + verify DB sync
 - Write create/update **DTOs** for all three entities
