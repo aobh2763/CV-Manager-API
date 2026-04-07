@@ -11,7 +11,11 @@
 
 ## Documentation
 ...
-
+Structure : modules/: Cv, Skill and user modules
+        Common/ : Generic crud service and controller
+        Data/Factories: factory for each module to generate fake data using @ngneat/falso;
+        Data/seeds : seeds via npm run seed:users/skills/cvs or seed for the whole database
+        Data/datasource : typeorm datasource
 ---
 
 ## Part 2 — CRUD & Seeding
