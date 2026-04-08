@@ -38,6 +38,8 @@ npm run seed:users
 npm run seed:cvs
 ```
 - Enabled eager loading for CVs, so when running GET on a CV, we can get all the related information.
+- Finalised CRUD :
+    * POST and PUT endpoints now use their respective DTOs for creating and updating. (Correct handling for relations + Easy testing in Swagger with ApiProperties)
 
 
 ---
