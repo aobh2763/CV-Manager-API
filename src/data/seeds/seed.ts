@@ -19,9 +19,9 @@ async function seed() {
   const users = userRepo.create(createUsers(5));
   await userRepo.save(users);
   // Create CVs
-  const cvsData = createCvs(15);
+  const cvsData = cvRepo.create(createCvs(15));
 
-  const cvs = cvsData.map(cv => {
+  const cvs = cvsData.map((cv) => {
     const newCv = cvRepo.create(cv);
     newCv.user = users[Math.floor(Math.random() * users.length)];
     newCv.skills = skills.sort(() => 0.5 - Math.random()).slice(0, 3);

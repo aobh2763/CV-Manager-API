@@ -6,8 +6,9 @@ import { Repository } from 'typeorm';
 
 @Injectable()
 export class UserService extends BaseService<User> {
-    constructor(@InjectRepository(User) private readonly UserRepository : Repository<User>){
-        super(UserRepository);
-    }
-
+  constructor(
+    @InjectRepository(User) private readonly UserRepository: Repository<User>,
+  ) {
+    super(UserRepository);
+  }
 }

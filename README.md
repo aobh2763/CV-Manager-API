@@ -27,7 +27,18 @@ Structure:
 - Write **register** endpoint with its DTO
 
 ## Documentation
-...
+- Added seed scripts for CVs, Skills and Users and one for all three at once :
+```
+// Seeding everything
+npm run seed
+
+// Seeding each entity at once
+npm run seed:skills
+npm run seed:users
+npm run seed:cvs
+```
+- Enabled eager loading for CVs, so when running GET on a CV, we can get all the related information.
+
 
 ---
 

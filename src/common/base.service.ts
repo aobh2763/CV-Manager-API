@@ -10,11 +10,11 @@ export class BaseService<T extends ObjectLiteral> {
   findOne(id: number): Promise<T | null> {
     return this.repo.findOneBy({ id } as any);
   }
-  
+
   async create(data: Partial<T>): Promise<T> {
-  const entity = this.repo.create(data as T);
-  return this.repo.save(entity);
-}
+    const entity = this.repo.create(data as T);
+    return this.repo.save(entity);
+  }
 
   async update(id: number, data: Partial<T>): Promise<T | null> {
     await this.repo.update(id, data);

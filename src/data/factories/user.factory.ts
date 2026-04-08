@@ -1,8 +1,4 @@
-import {
-  randUserName,
-  randEmail,
-  randPassword,
-} from '@ngneat/falso';
+import { randUserName, randEmail, randPassword } from '@ngneat/falso';
 import { User } from '../../modules/user/user.entity';
 
 export const createUser = (): Partial<User> => {
