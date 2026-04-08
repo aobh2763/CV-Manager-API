@@ -1,28 +1,70 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { UsersService } from '../users/users.service';
+import bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
+import { ConfigService } from '@nestjs/config';
+import { UsersService } from '../users/users.service';
+import { LoginRequestDto } from './dto/login-request.dto';
+import { LoginResponseDto } from './dto/login-response.dto';
+import { RegisterRequestDto } from './dto/register-request.dto';
+import { HttpStatus, Injectable, UnprocessableEntityException } from '@nestjs/common';
 
 @Injectable()
 export class AuthService {
-  constructor(
-    private usersService: UsersService,
-    private jwtService: JwtService
-  ) { }
+  private jwtSecret: string;
+  private jwtExpiresIn: number;
 
-  async signIn(
-    username: string,
-    pass: string,
-  ): Promise<{ access_token: string }> {
-    const user = await this.usersService.findOne(username);
-    if (user?.password !== pass) {
-      throw new UnauthorizedException();
+  constructor(
+    private jwtService: JwtService,
+    private usersService: UsersService,
+    private configService: ConfigService
+  ) {
+    this.jwtSecret = this.configService.get<string>('auth.jwtSecret', { infer: true })!;
+    this.jwtExpiresIn = this.configService.get<number>('auth.jwtExpiresIn', { infer: true })!;
+  }
+
+  async login(loginRequest: LoginRequestDto): Promise<LoginResponseDto> {
+    const user = await this.usersService.findOne(loginRequest.email);
+
+    if (!user) {
+      throw new UnprocessableEntityException({
+        status: HttpStatus.UNPROCESSABLE_ENTITY,
+        errors: {
+          email: 'notFound',
+        },
+      });
     }
-    const payload = { sub: user.userId, username: user.username };
+
+    const isValidPassword = await bcrypt.compare(
+      loginRequest.password,
+      user.password,
+    );
+
+    if (!user.password || !isValidPassword) {
+      throw new UnprocessableEntityException({
+        status: HttpStatus.UNPROCESSABLE_ENTITY,
+        errors: {
+          password: 'incorrectPassword',
+        },
+      });
+    }
+
+    const token = await this.jwtService.signAsync(
+      {
+        id: loginRequest.email,
+      },
+      {
+        secret: this.jwtSecret,
+        expiresIn: this.jwtExpiresIn,
+      },
+    );
+
     return {
-      // 💡 Here the JWT secret key that's used for signing the payload 
-      // is the key that was passed in the JwtModule
-      access_token: await this.jwtService.signAsync(payload),
+      accessToken: token,
+      tokenExpiresIn: this.jwtExpiresIn,
     };
+  }
+
+  async register(registerRequest: RegisterRequestDto) {
+    // TODO: create user
   }
 }
 
