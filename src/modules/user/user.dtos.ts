@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { UserRole } from './user.entity';
 
 export class CreateUserDto {
   @ApiProperty({ example: 'John Doe' })
@@ -9,6 +10,9 @@ export class CreateUserDto {
 
   @ApiProperty({ example: 'securepassword' })
   password!: string;
+
+  @ApiProperty({ example: 'user' })
+  role!: UserRole;
 }
 
 export class UpdateUserDto {
@@ -20,4 +24,7 @@ export class UpdateUserDto {
 
   @ApiProperty({ example: 'securepassword' })
   password?: string;
+
+  @ApiProperty({ example: 'user' })
+  role?: UserRole;
 }
