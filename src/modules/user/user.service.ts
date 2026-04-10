@@ -13,9 +13,14 @@ export class UserService extends BaseService<User> {
     super(UserRepository);
   }
 
+  // TODO: encrypt user password
   async createWithDto(dto: CreateUserDto): Promise<User> {
     const user = this.UserRepository.create(dto);
     return this.UserRepository.save(user);
+  }
+
+  async findOneByEmail(email: string): Promise<User | null> {
+    return this.UserRepository.findOneBy({ email });
   }
 
   async updateWithDto(id: number, dto: UpdateUserDto): Promise<User | null> {

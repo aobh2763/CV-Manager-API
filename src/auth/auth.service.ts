@@ -1,7 +1,7 @@
 import bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
-import { UsersService } from '../users/users.service';
+import { UserService } from '../modules/user/user.service';
 import { LoginRequestDto } from './dto/login-request.dto';
 import { LoginResponseDto } from './dto/login-response.dto';
 import { RegisterRequestDto } from './dto/register-request.dto';
@@ -14,7 +14,7 @@ export class AuthService {
 
   constructor(
     private jwtService: JwtService,
-    private usersService: UsersService,
+    private usersService: UserService,
     private configService: ConfigService
   ) {
     this.jwtSecret = this.configService.get<string>('auth.jwtSecret', { infer: true })!;
@@ -22,7 +22,7 @@ export class AuthService {
   }
 
   async login(loginRequest: LoginRequestDto): Promise<LoginResponseDto> {
-    const user = await this.usersService.findOne(loginRequest.email);
+    const user = await this.usersService.findOneByEmail(loginRequest.email);
 
     if (!user) {
       throw new UnprocessableEntityException({
@@ -33,10 +33,13 @@ export class AuthService {
       });
     }
 
-    const isValidPassword = await bcrypt.compare(
+    // TODO: encrypt user password
+    /*const isValidPassword = await bcrypt.compare(
       loginRequest.password,
       user.password,
-    );
+    );*/
+
+    const isValidPassword = loginRequest.password == user.password;
 
     if (!user.password || !isValidPassword) {
       throw new UnprocessableEntityException({
@@ -49,7 +52,7 @@ export class AuthService {
 
     const token = await this.jwtService.signAsync(
       {
-        id: loginRequest.email,
+        id: user.id,
       },
       {
         secret: this.jwtSecret,

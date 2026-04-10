@@ -3,12 +3,12 @@ import { JwtModule } from '@nestjs/jwt';
 import { AuthService } from './auth.service';
 import { JwtStrategy } from './jwt.strategy';
 import { PassportModule } from '@nestjs/passport';
-import { UsersModule } from '../users/users.module';
+import { UserModule } from '../modules/user/user.module';
 import { AuthController } from './auth.controller';
 
 @Module({
   imports: [
-    UsersModule,
+    UserModule,
     PassportModule,
     JwtModule.register({
       secret: process.env.JWT_SECRET || "dummy jwt secret",
