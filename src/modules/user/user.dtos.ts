@@ -4,7 +4,7 @@ import { PartialType } from '@nestjs/mapped-types';
 
 export class CreateUserDto {
   @ApiProperty({ example: 'John Doe' })
-  name!: string;
+  username!: string;
 
   @ApiProperty({ example: 'johndoe' })
   email!: string;
@@ -16,4 +16,4 @@ export class CreateUserDto {
   role!: UserRole;
 }
 
-export class UpdateUserDto extends PartialType(CreateUserDto) {}
+export class UpdateUserDto extends PartialType(CreateUserDto) { }

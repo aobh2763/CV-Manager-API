@@ -6,6 +6,7 @@ import { LoginRequestDto } from './dto/login-request.dto';
 import { LoginResponseDto } from './dto/login-response.dto';
 import { RegisterRequestDto } from './dto/register-request.dto';
 import { HttpStatus, Injectable, UnprocessableEntityException } from '@nestjs/common';
+import { UserRole } from '../modules/user/user.entity';
 
 @Injectable()
 export class AuthService {
@@ -67,7 +68,12 @@ export class AuthService {
   }
 
   async register(registerRequest: RegisterRequestDto) {
-    // TODO: create user
+    this.usersService.createWithDto({
+      username: registerRequest.username,
+      email: registerRequest.email,
+      password: registerRequest.password,
+      role: UserRole.USER // admin accounts should be predefined i think
+    })
   }
 }
 
