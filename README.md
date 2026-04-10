@@ -53,7 +53,28 @@ npm run seed:cvs
 - On **update/delete**: enforce ownership, throw `401`/`403`
 
 ## Documentation
-...
+  - [Authentication](https://docs.nestjs.com/security/authentication)
+  - [Passport](https://docs.nestjs.com/recipes/passport)
+  - [Configuration](https://docs.nestjs.com/techniques/configuration)
+
+```bash
+cp .env.example .env
+npm run start:dev
+```
+
+```bash
+curl -X POST http://localhost:3000/auth/login -d '{"email": "john@example.com", "password": "changeme"}' -H "Content-Type: application/json"
+
+# expected output
+{"accessToken":"eyJ...","tokenExpiresIn":60}
+```
+
+```bash
+curl -X GET http://localhost:3000/auth/me -H "Authorization: Bearer eyJ..."
+
+# expected output (the email will change to the actual id of the user once we setup a database connection)
+{"id":"john@example.com","iat":...,"exp":...}
+```
 
 ---
 
