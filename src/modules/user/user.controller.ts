@@ -1,4 +1,12 @@
-import { Body, Controller, Param, Post, Put, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Param,
+  Post,
+  Put,
+  UseGuards,
+  Delete,
+} from '@nestjs/common';
 import { UserService } from './user.service';
 import { BaseController } from '../../common/base.controller';
 import { User } from './user.entity';
@@ -16,7 +24,6 @@ export class UserController extends BaseController(User) {
   }
 
   @UseGuards(AuthGuard('jwt'), RoleGuard)
-  @Role('admin')
   @Post()
   create(@Body() dto: CreateUserDto): Promise<User> {
     return this.userService.createWithDto(dto);
@@ -30,5 +37,12 @@ export class UserController extends BaseController(User) {
     @Body() dto: UpdateUserDto,
   ): Promise<User | null> {
     return this.userService.updateWithDto(id, dto);
+  }
+
+  @UseGuards(AuthGuard('jwt'), RoleGuard)
+  @Role('admin')
+  @Delete(':id')
+  remove(@Param('id') id: number) {
+    return this.userService.delete(id);
   }
 }

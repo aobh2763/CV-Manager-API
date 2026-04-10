@@ -77,11 +77,13 @@ export class AuthService {
   }
 
   async register(registerRequest: RegisterRequestDto) {
-    this.usersService.createWithDto({
-      username: registerRequest.username,
-      email: registerRequest.email,
-      password: registerRequest.password,
-      role: UserRole.USER, // admin accounts should be predefined i think
-    });
+    if (registerRequest.username) {
+      await this.usersService.createWithDto({
+        username: registerRequest.username,
+        email: registerRequest.email,
+        password: registerRequest.password,
+        role: UserRole.USER, // admin accounts should be predefined i think
+      });
+    }
   }
 }

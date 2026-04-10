@@ -11,12 +11,14 @@ import { AuthController } from './auth.controller';
     UserModule,
     PassportModule,
     JwtModule.register({
-      secret: process.env.JWT_SECRET || "dummy jwt secret",
-      signOptions: { expiresIn: parseInt(process.env.JWT_EXPIRES_IN || "60", 10) },
+      secret: process.env.JWT_SECRET || 'dummy jwt secret',
+      signOptions: {
+        expiresIn: parseInt(process.env.JWT_EXPIRES_IN || '60', 10),
+      },
     }),
   ],
   providers: [AuthService, JwtStrategy],
   controllers: [AuthController],
   exports: [AuthService],
 })
-export class AuthModule { }
+export class AuthModule {}

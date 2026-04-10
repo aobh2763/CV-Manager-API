@@ -8,7 +8,7 @@ async function seedUsers() {
   const users = userRepo.create(createUsers(5));
   await userRepo.save(users);
   console.log('Users seeded!');
-  process.exit();
+  await AppDataSource.destroy();
 }
 
 seedUsers();

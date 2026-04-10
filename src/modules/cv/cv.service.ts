@@ -1,9 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { Cv } from './cv.entity';
 import { BaseService } from '../../common/base.service';
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
-import { User } from '../user/user.entity';
+import { User, UserRole } from '../user/user.entity';
 import { Skill } from '../skill/skill.entity';
 import { CreateCvDto, UpdateCvDto } from './cv.dtos';
 
@@ -21,15 +21,8 @@ export class CvService extends BaseService<Cv> {
   }
 
   async createWithDto(dto: CreateCvDto, userreq: User): Promise<Cv> {
-    const userId = userreq.id;
     const skillIds = dto.skillIds;
-
-    const user = userreq;
     const skills = await this.skillRepository.findBy({ id: In(skillIds) });
-
-    if (!user) {
-      throw new Error(`User with ID ${userId} not found`);
-    }
 
     const cv = this.cvRepository.create({
       name: dto.name,
@@ -38,7 +31,7 @@ export class CvService extends BaseService<Cv> {
       CIN: dto.CIN,
       job: dto.job,
       path: dto.path,
-      user,
+      user: userreq,
       skills,
     });
 
@@ -56,8 +49,8 @@ export class CvService extends BaseService<Cv> {
     });
     if (!cv) return null;
 
-    if (cv.user.id !== userreq.id && userreq.role !== 'admin') {
-      throw new Error('Unauthorized');
+    if (cv.user.id !== userreq.id && userreq.role !== UserRole.ADMIN) {
+      throw new HttpException('Unauthorized', HttpStatus.FORBIDDEN);
     }
 
     const { skillIds, ...fields } = dto;
@@ -74,7 +67,7 @@ export class CvService extends BaseService<Cv> {
   }
 
   async findAllForCV(user: User): Promise<Cv[]> {
-    if (user.role === 'admin') {
+    if (user.role === UserRole.ADMIN) {
       return this.cvRepository.find({ relations: ['user', 'skills'] });
     }
     return this.cvRepository.find({
@@ -91,8 +84,8 @@ export class CvService extends BaseService<Cv> {
     if (!cv) {
       throw new Error(`CV with ID ${id} not found`);
     }
-    if (cv.user.id !== user.id && user.role !== 'admin') {
-      throw new Error('Unauthorized');
+    if (cv.user.id !== user.id && user.role !== UserRole.ADMIN) {
+      throw new HttpException('Unauthorized', HttpStatus.FORBIDDEN);
     }
     await this.cvRepository.remove(cv);
   }

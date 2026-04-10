@@ -8,7 +8,7 @@ async function seedSkills() {
   const skills = skillRepo.create(createSkills(10));
   await skillRepo.save(skills);
   console.log('Skills seeded!');
-  process.exit();
+  await AppDataSource.destroy();
 }
 
 seedSkills();

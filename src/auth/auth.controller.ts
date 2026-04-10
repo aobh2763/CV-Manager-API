@@ -3,14 +3,23 @@ import { AuthService } from './auth.service';
 import { LoginRequestDto } from './dto/login-request.dto';
 import { LoginResponseDto } from './dto/login-response.dto';
 import { RegisterRequestDto } from './dto/register-request.dto';
-import { Controller, Post, UseGuards, Request, Get, Body } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  UseGuards,
+  Request,
+  Get,
+  Body,
+} from '@nestjs/common';
 
 @Controller({ path: 'auth' })
 export class AuthController {
-  constructor(private authService: AuthService) { }
+  constructor(private authService: AuthService) {}
 
   @Post('login')
-  async login(@Body() loginRequest: LoginRequestDto): Promise<LoginResponseDto> {
+  async login(
+    @Body() loginRequest: LoginRequestDto,
+  ): Promise<LoginResponseDto> {
     return this.authService.login(loginRequest);
   }
 

@@ -12,7 +12,7 @@ export const createCv = (): Partial<Cv> => {
     name: randLastName(),
     firstName: randFirstName(),
     age: randNumber({ min: 20, max: 62 }),
-    CIN: randNumber({ min: 9000000, max: 10000000 }),
+    CIN: randNumber({ min: 1, max: 15000000 }),
     job: randJobTitle(),
     path: randFilePath(),
   };

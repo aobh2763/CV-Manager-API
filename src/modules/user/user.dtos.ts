@@ -1,19 +1,26 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { UserRole } from './user.entity';
 import { PartialType } from '@nestjs/mapped-types';
+import { IsEmail, IsEnum, IsNotEmpty } from 'class-validator';
 
 export class CreateUserDto {
   @ApiProperty({ example: 'John Doe' })
-  username!: string;
+  @IsNotEmpty()
+  username: string;
 
   @ApiProperty({ example: 'johndoe' })
-  email!: string;
+  @IsNotEmpty()
+  @IsEmail()
+  email: string;
 
   @ApiProperty({ example: 'securepassword' })
-  password!: string;
+  @IsNotEmpty()
+  password: string;
 
   @ApiProperty({ example: 'user' })
-  role!: UserRole;
+  @IsNotEmpty()
+  @IsEnum(UserRole)
+  role: UserRole;
 }
 
-export class UpdateUserDto extends PartialType(CreateUserDto) { }
+export class UpdateUserDto extends PartialType(CreateUserDto) {}

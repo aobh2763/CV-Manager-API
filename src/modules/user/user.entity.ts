@@ -12,24 +12,24 @@ export enum UserRole {
 export class User {
   @PrimaryGeneratedColumn()
   @ApiProperty({ example: 1 })
-  id!: number;
+  id: number;
 
   @Column({ unique: true })
   @ApiProperty({ example: 'johndoe' })
-  username!: string;
+  username: string;
 
   @Column({ unique: true })
   @ApiProperty({ example: 'john.doe@example.com' })
-  email!: string;
+  email: string;
 
   @Column()
-  password!: string;
+  password: string;
 
   @Column()
   @ApiProperty({ example: 'user' })
-  role!: UserRole;
+  role: UserRole;
 
   @OneToMany(() => Cv, (cv) => cv.user)
   @ApiProperty({ type: () => [Cv] })
-  cvs!: Cv[];
+  cvs: Cv[];
 }

@@ -1,30 +1,37 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { PartialType } from '@nestjs/mapped-types';
+import { IsNotEmpty } from 'class-validator';
 
 export class CreateCvDto {
   @ApiProperty({ example: 'Doe' })
-  name!: string;
+  @IsNotEmpty()
+  name: string;
 
   @ApiProperty({ example: 'John' })
-  firstName!: string;
+  @IsNotEmpty()
+  firstName: string;
 
   @ApiProperty({ example: 30 })
-  age!: number;
+  @IsNotEmpty()
+  age: number;
 
   @ApiProperty({ example: 12345678 })
-  CIN!: number;
+  @IsNotEmpty()
+  CIN: number;
 
   @ApiProperty({ example: 'Software Engineer' })
-  job!: string;
+  @IsNotEmpty()
+  job: string;
 
   @ApiProperty({ example: '/path/to/cv.pdf' })
-  path!: string;
+  @IsNotEmpty()
+  path: string;
 
   @ApiProperty({
     example: [1, 2, 3],
     description: 'IDs of the skills associated with this CV',
   })
-  skillIds!: number[];
+  skillIds: number[];
 }
 
 export class UpdateCvDto extends PartialType(CreateCvDto) {}

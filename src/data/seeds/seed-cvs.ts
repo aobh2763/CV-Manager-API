@@ -28,7 +28,7 @@ async function seedCvs() {
 
   await cvRepo.save(cvs);
   console.log('CVs seeded!');
-  process.exit();
+  await AppDataSource.destroy();
 }
 
 seedCvs();
