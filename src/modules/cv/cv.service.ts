@@ -20,11 +20,11 @@ export class CvService extends BaseService<Cv> {
     super(cvRepository);
   }
 
-  async createWithDto(dto: CreateCvDto): Promise<Cv> {
-    const userId = dto.userId;
+  async createWithDto(dto: CreateCvDto, userreq: User): Promise<Cv> {
+    const userId = userreq.id;
     const skillIds = dto.skillIds;
 
-    const user = await this.userRepository.findOneBy({ id: userId });
+    const user = userreq;
     const skills = await this.skillRepository.findBy({ id: In(skillIds) });
 
     if (!user) {
@@ -45,21 +45,22 @@ export class CvService extends BaseService<Cv> {
     return this.cvRepository.save(cv);
   }
 
-  async updateWithDto(id: number, dto: UpdateCvDto): Promise<Cv | null> {
+  async updateWithDto(
+    id: number,
+    dto: UpdateCvDto,
+    userreq: User,
+  ): Promise<Cv | null> {
     const cv = await this.cvRepository.findOne({
       where: { id },
       relations: ['user', 'skills'],
     });
     if (!cv) return null;
 
-    const { userId, skillIds, ...fields } = dto;
-
-    if (userId) {
-      const user = await this.userRepository.findOneBy({ id: userId });
-      if (user) {
-        cv.user = user;
-      }
+    if (cv.user.id !== userreq.id && userreq.role !== 'admin') {
+      throw new Error('Unauthorized');
     }
+
+    const { skillIds, ...fields } = dto;
 
     if (skillIds !== undefined) {
       cv.skills = skillIds.length
@@ -70,5 +71,15 @@ export class CvService extends BaseService<Cv> {
     Object.assign(cv, fields);
 
     return this.cvRepository.save(cv);
+  }
+
+  async findAll(user: User): Promise<Cv[]> {
+    if (user.role === 'admin') {
+      return this.cvRepository.find({ relations: ['user', 'skills'] });
+    }
+    return this.cvRepository.find({
+      where: { user: { id: user.id } },
+      relations: ['user', 'skills'],
+    });
   }
 }

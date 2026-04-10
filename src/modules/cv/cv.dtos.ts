@@ -20,9 +20,6 @@ export class CreateCvDto {
   @ApiProperty({ example: '/path/to/cv.pdf' })
   path!: string;
 
-  @ApiProperty({ example: 1, description: 'ID of the user who owns this CV' })
-  userId!: number;
-
   @ApiProperty({
     example: [1, 2, 3],
     description: 'IDs of the skills associated with this CV',

@@ -5,7 +5,11 @@ import { UserService } from '../modules/user/user.service';
 import { LoginRequestDto } from './dto/login-request.dto';
 import { LoginResponseDto } from './dto/login-response.dto';
 import { RegisterRequestDto } from './dto/register-request.dto';
-import { HttpStatus, Injectable, UnprocessableEntityException } from '@nestjs/common';
+import {
+  HttpStatus,
+  Injectable,
+  UnprocessableEntityException,
+} from '@nestjs/common';
 import { UserRole } from '../modules/user/user.entity';
 
 @Injectable()
@@ -16,10 +20,14 @@ export class AuthService {
   constructor(
     private jwtService: JwtService,
     private usersService: UserService,
-    private configService: ConfigService
+    private configService: ConfigService,
   ) {
-    this.jwtSecret = this.configService.get<string>('auth.jwtSecret', { infer: true })!;
-    this.jwtExpiresIn = this.configService.get<number>('auth.jwtExpiresIn', { infer: true })!;
+    this.jwtSecret = this.configService.get<string>('auth.jwtSecret', {
+      infer: true,
+    })!;
+    this.jwtExpiresIn = this.configService.get<number>('auth.jwtExpiresIn', {
+      infer: true,
+    })!;
   }
 
   async login(loginRequest: LoginRequestDto): Promise<LoginResponseDto> {
@@ -54,6 +62,7 @@ export class AuthService {
     const token = await this.jwtService.signAsync(
       {
         id: user.id,
+        role: user.role,
       },
       {
         secret: this.jwtSecret,
@@ -72,8 +81,7 @@ export class AuthService {
       username: registerRequest.username,
       email: registerRequest.email,
       password: registerRequest.password,
-      role: UserRole.USER // admin accounts should be predefined i think
-    })
+      role: UserRole.USER, // admin accounts should be predefined i think
+    });
   }
 }
-
