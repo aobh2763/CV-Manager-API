@@ -25,13 +25,13 @@ export class CvController extends BaseController(Cv) {
 
   @Post()
   @UseGuards(AuthGuard('jwt'))
-  create(@Body() dto: CreateCvDto, @Request() req): Promise<Cv> {
+  createForCv(@Body() dto: CreateCvDto, @Request() req): Promise<Cv> {
     return this.cvService.createWithDto(dto, req.user);
   }
 
   @Put(':id')
   @UseGuards(AuthGuard('jwt'))
-  update(
+  updateForCv(
     @Param('id') id: number,
     @Body() dto: UpdateCvDto,
     @Request() req,
@@ -41,13 +41,13 @@ export class CvController extends BaseController(Cv) {
 
   @Get()
   @UseGuards(AuthGuard('jwt'))
-  findAll(@Request() req) {
-    return this.cvService.findAll(req.user);
+  findAllForCv(@Request() req) {
+    return this.cvService.findAllForCV(req.user);
   }
 
   @Delete(':id')
   @UseGuards(AuthGuard('jwt'))
   delete(@Param('id') id: number, @Request() req): Promise<void> {
-    return this.cvService.delete(id, req.user);
+    return this.cvService.deleteForCv(id, req.user);
   }
 }

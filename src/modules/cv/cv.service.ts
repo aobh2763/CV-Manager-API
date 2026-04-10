@@ -73,7 +73,7 @@ export class CvService extends BaseService<Cv> {
     return this.cvRepository.save(cv);
   }
 
-  async findAll(user: User): Promise<Cv[]> {
+  async findAllForCV(user: User): Promise<Cv[]> {
     if (user.role === 'admin') {
       return this.cvRepository.find({ relations: ['user', 'skills'] });
     }
@@ -81,5 +81,19 @@ export class CvService extends BaseService<Cv> {
       where: { user: { id: user.id } },
       relations: ['user', 'skills'],
     });
+  }
+
+  async deleteForCv(id: number, user: User): Promise<void> {
+    const cv = await this.cvRepository.findOne({
+      where: { id },
+      relations: ['user'],
+    });
+    if (!cv) {
+      throw new Error(`CV with ID ${id} not found`);
+    }
+    if (cv.user.id !== user.id && user.role !== 'admin') {
+      throw new Error('Unauthorized');
+    }
+    await this.cvRepository.remove(cv);
   }
 }
