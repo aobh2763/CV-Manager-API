@@ -2,23 +2,21 @@ import { DataSource } from 'typeorm';
 import { User } from '../modules/user/user.entity';
 import { Cv } from '../modules/cv/cv.entity';
 import { Skill } from '../modules/skill/skill.entity';
-import { env } from '../../config/env';
+import { configDotenv } from 'dotenv';
+
+configDotenv();
+
+console.log(process.env.DB_HOST);
 
 export const AppDataSource = new DataSource({
-  type: env.db.type,
-  host: env.db.host,
-  port: env.db.port,
-  username: env.db.username,
-  password: env.db.password,
-  database: env.db.database,
+  type: "mysql",
+  host: process.env.DB_HOST || "localhost",
+  port: parseInt(process.env.DB_PORT || "3306", 10),
+  username: process.env.DB_USERNAME,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME,
   synchronize: true,
   logging: false,
   entities: [User, Cv, Skill],
-  migrations: [],
   subscribers: [],
-  options: {
-    encrypt: false,
-    trustServerCertificate: true,
-    enableArithAbort: true,
-  },
 });
