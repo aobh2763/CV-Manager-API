@@ -11,25 +11,25 @@ import {
 } from '@nestjs/common';
 import { CvService } from './cv.service';
 import { Cv } from './cv.entity';
-import { BaseController } from '../../common/base.controller';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiTags, ApiExtraModels } from '@nestjs/swagger';
 import { CreateCvDto, UpdateCvDto } from './cv.dtos';
 import { AuthGuard } from '@nestjs/passport';
 
 @ApiTags('cv')
+@ApiExtraModels(CreateCvDto, UpdateCvDto)
 @Controller('cv')
-export class CvController extends BaseController(Cv) {
-  constructor(private readonly cvService: CvService) {
-    super(cvService);
-  }
+export class CvController {
+  constructor(private readonly cvService: CvService) {}
 
   @Post()
+  @ApiBody({ type: CreateCvDto })
   @UseGuards(AuthGuard('jwt'))
   createForCv(@Body() dto: CreateCvDto, @Request() req): Promise<Cv> {
     return this.cvService.createWithDto(dto, req.user);
   }
 
   @Put(':id')
+  @ApiBody({ type: UpdateCvDto })
   @UseGuards(AuthGuard('jwt'))
   updateForCv(
     @Param('id') id: number,
@@ -43,6 +43,12 @@ export class CvController extends BaseController(Cv) {
   @UseGuards(AuthGuard('jwt'))
   findAllForCv(@Request() req) {
     return this.cvService.findAllForCV(req.user);
+  }
+
+  @Get(':id')
+  @UseGuards(AuthGuard('jwt'))
+  getOneForCv(@Param('id') id: number, @Request() req): Promise<Cv | null> {
+    return this.cvService.findOne(id);
   }
 
   @Delete(':id')

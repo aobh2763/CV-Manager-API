@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { PartialType } from '@nestjs/swagger';
 import { UserRole } from './user.entity';
-import { PartialType } from '@nestjs/mapped-types';
 import { IsEmail, IsEnum, IsNotEmpty } from 'class-validator';
 
 export class CreateUserDto {

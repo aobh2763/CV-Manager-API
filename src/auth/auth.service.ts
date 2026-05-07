@@ -42,13 +42,10 @@ export class AuthService {
       });
     }
 
-    // TODO: encrypt user password
-    /*const isValidPassword = await bcrypt.compare(
+    const isValidPassword = await bcrypt.compare(
       loginRequest.password,
       user.password,
-    );*/
-
-    const isValidPassword = loginRequest.password == user.password;
+    );
 
     if (!user.password || !isValidPassword) {
       throw new UnprocessableEntityException({
