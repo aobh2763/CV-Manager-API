@@ -59,17 +59,18 @@ export class AuthService {
     const token = await this.jwtService.signAsync(
       {
         id: user.id,
+        username: user.username,
         role: user.role,
       },
       {
         secret: this.jwtSecret,
-        expiresIn: this.jwtExpiresIn,
+        expiresIn: this.jwtExpiresIn * 60 * 24, // convert from days to seconds, the env means 60 days
       },
     );
 
     return {
       accessToken: token,
-      tokenExpiresIn: this.jwtExpiresIn,
+      tokenExpiresIn: this.jwtExpiresIn * 60 * 24, // convert from days to seconds, the env means 60 days
     };
   }
 
