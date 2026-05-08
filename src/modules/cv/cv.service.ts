@@ -6,6 +6,8 @@ import { In, Repository } from 'typeorm';
 import { User, UserRole } from '../user/user.entity';
 import { Skill } from '../skill/skill.entity';
 import { CreateCvDto, UpdateCvDto } from './cv.dtos';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { APP_EVENTS } from './config/event-const.config';
 
 @Injectable()
 export class CvService extends BaseService<Cv> {
@@ -16,6 +18,7 @@ export class CvService extends BaseService<Cv> {
     private userRepository: Repository<User>,
     @InjectRepository(Skill)
     private skillRepository: Repository<Skill>,
+    private eventEmitter: EventEmitter2,
   ) {
     super(cvRepository);
   }
@@ -35,7 +38,9 @@ export class CvService extends BaseService<Cv> {
       skills,
     });
 
-    return this.cvRepository.save(cv);
+    const savedCv = await this.cvRepository.save(cv);
+    this.eventEmitter.emit(APP_EVENTS.addedCv, { cv: savedCv, user: userreq });
+    return savedCv;
   }
 
   async updateWithDto(
@@ -63,7 +68,12 @@ export class CvService extends BaseService<Cv> {
 
     Object.assign(cv, fields);
 
-    return this.cvRepository.save(cv);
+    const updatedCv = await this.cvRepository.save(cv);
+    this.eventEmitter.emit(APP_EVENTS.updatedCv, {
+      cv: updatedCv,
+      user: userreq,
+    });
+    return updatedCv;
   }
 
   async findAllForCV(user: User): Promise<Cv[]> {
@@ -87,6 +97,7 @@ export class CvService extends BaseService<Cv> {
     if (cv.user.id !== user.id && user.role !== UserRole.ADMIN) {
       throw new HttpException('Unauthorized', HttpStatus.FORBIDDEN);
     }
+    this.eventEmitter.emit(APP_EVENTS.deltedCv, { cv, user });
     await this.cvRepository.remove(cv);
   }
 }

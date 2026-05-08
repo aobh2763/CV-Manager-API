@@ -14,12 +14,17 @@ import { Cv } from './cv.entity';
 import { ApiBody, ApiTags, ApiExtraModels } from '@nestjs/swagger';
 import { CreateCvDto, UpdateCvDto } from './cv.dtos';
 import { AuthGuard } from '@nestjs/passport';
+import { CvHistoryService } from './cv.history.service';
+import { Role } from '../../auth/roles.decorator';
 
 @ApiTags('cv')
 @ApiExtraModels(CreateCvDto, UpdateCvDto)
 @Controller('cv')
 export class CvController {
-  constructor(private readonly cvService: CvService) {}
+  constructor(
+    private readonly cvService: CvService,
+    private readonly cvHistoryService: CvHistoryService,
+  ) {}
 
   @Post()
   @ApiBody({ type: CreateCvDto })
@@ -43,6 +48,20 @@ export class CvController {
   @UseGuards(AuthGuard('jwt'))
   findAllForCv(@Request() req) {
     return this.cvService.findAllForCV(req.user);
+  }
+
+  @Get('history')
+  @Role('admin')
+  @UseGuards(AuthGuard('jwt'))
+  getAllHistory() {
+    return this.cvHistoryService.findAll();
+  }
+
+  @Get('history/:id')
+  @Role('admin')
+  @UseGuards(AuthGuard('jwt'))
+  getCvHistory(@Param('id') id: number) {
+    return this.cvHistoryService.findByCvId(id);
   }
 
   @Get(':id')
