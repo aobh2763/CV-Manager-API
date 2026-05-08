@@ -8,18 +8,23 @@ import {
   Get,
   Request,
   Delete,
+  Sse
 } from '@nestjs/common';
 import { CvService } from './cv.service';
+import { CvEventsService } from './cv-events.service';
 import { Cv } from './cv.entity';
 import { ApiBody, ApiTags, ApiExtraModels } from '@nestjs/swagger';
 import { CreateCvDto, UpdateCvDto } from './cv.dtos';
 import { AuthGuard } from '@nestjs/passport';
+import { fromEvent } from 'rxjs';
 
 @ApiTags('cv')
 @ApiExtraModels(CreateCvDto, UpdateCvDto)
 @Controller('cv')
 export class CvController {
-  constructor(private readonly cvService: CvService) {}
+  constructor(private readonly cvService: CvService,
+    private readonly cvEventsService: CvEventsService
+  ) {}
 
   @Post()
   @ApiBody({ type: CreateCvDto })
@@ -43,6 +48,11 @@ export class CvController {
   @UseGuards(AuthGuard('jwt'))
   findAllForCv(@Request() req) {
     return this.cvService.findAllForCV(req.user);
+  }
+  @Sse('events')
+  @UseGuards(AuthGuard('jwt'))
+  stream(@Request() req){
+    return this.cvEventsService.streamForUser(req.user);
   }
 
   @Get(':id')

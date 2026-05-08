@@ -5,10 +5,11 @@ import { Cv } from './cv.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Skill } from '../skill/skill.entity';
 import { User } from '../user/user.entity';
+import { CvEventsService } from './cv-events.service';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Cv, User, Skill])],
   controllers: [CvController],
-  providers: [CvService],
+  providers: [CvService, CvEventsService],
 })
 export class CvModule {}

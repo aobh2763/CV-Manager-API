@@ -13,7 +13,7 @@ import { AuthController } from './auth.controller';
     JwtModule.register({
       secret: process.env.JWT_SECRET || 'dummy jwt secret',
       signOptions: {
-        expiresIn: parseInt(process.env.JWT_EXPIRES_IN || '60', 10),
+        expiresIn: parseInt(process.env.JWT_EXPIRES_IN || '3600', 10),
       },
     }),
   ],

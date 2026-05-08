@@ -9,9 +9,9 @@ configDotenv();
 console.log(process.env.DB_HOST);
 
 export const AppDataSource = new DataSource({
-  type: "mysql",
+  type: "mssql",
   host: process.env.DB_HOST || "localhost",
-  port: parseInt(process.env.DB_PORT || "3306", 10),
+  port: parseInt(process.env.DB_PORT || "1433", 10),
   username: process.env.DB_USERNAME,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
@@ -19,4 +19,7 @@ export const AppDataSource = new DataSource({
   logging: false,
   entities: [User, Cv, Skill],
   subscribers: [],
+  options :{
+    trustServerCertificate: true,
+  }
 });
