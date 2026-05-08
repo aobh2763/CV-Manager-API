@@ -55,7 +55,7 @@ export class AuthService {
       loginRequest.password,
       user.password,
     );
-
+    
     if (!user.password || !isValidPassword) {
       throw new UnprocessableEntityException({
         status: HttpStatus.UNPROCESSABLE_ENTITY,

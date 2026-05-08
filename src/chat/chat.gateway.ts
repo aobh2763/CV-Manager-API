@@ -12,11 +12,8 @@ import { AuthService } from '../auth/auth.service';
 import { Inject } from '@nestjs/common';
 import { UserService } from '../modules/user/user.service';
 import { ChatService } from './chat.service';
-import chalk from 'chalk';
 import { UserRole } from '../modules/user/user.entity';
-
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+import { ChatHandler } from './chat.handler';
 
 @WebSocketGateway({
   namespace: 'chat',
@@ -28,10 +25,22 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   server: Server;
 
   constructor(
-    @Inject() private readonly chatService: ChatService,
     @Inject() private readonly authService: AuthService,
     @Inject() private readonly userService: UserService,
+    @Inject() private readonly chatService: ChatService,
+    @Inject() private readonly chatHandler: ChatHandler,
   ) {}
+
+  private getClientOrFail(client: Socket) {
+    const clientData = this.chatService.getClientAttributes(client.id);
+
+    if (!clientData) {
+      client.emit('server:error', 'Client data not found');
+      return null;
+    }
+
+    return clientData;
+  }
 
   async handleConnection(
     @ConnectedSocket() client: Socket
@@ -80,16 +89,11 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   handleDisconnect(client: Socket) {
-    const clientData = this.chatService.getClientAttributes(client.id);
-
-    if (!clientData) {
-      client.emit('server:error', 'Client data not found');
-      return;
-    }
+    const clientData = this.getClientOrFail(client);
+    if (!clientData) return;
 
     client.broadcast.emit('server:log', `${clientData.username} has left the chat!`);
 
-    console.log('client disconnected:', client.id);
     this.chatService.removeClient(client.id);
   }
 
@@ -98,12 +102,8 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @MessageBody() data: { message: string }, 
     @ConnectedSocket() client: Socket
   ) {
-    const clientData = this.chatService.getClientAttributes(client.id);
-
-    if (!clientData) {
-      client.emit('server:error', 'Client data not found');
-      return;
-    }
+    const clientData = this.getClientOrFail(client);
+    if (!clientData) return;
 
     const cleanedMessage = this.chatService.filterMessage(data.message);
 
@@ -125,28 +125,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @MessageBody() data: { color: string },
     @ConnectedSocket() client: Socket
   ) {
-    console.log("here");
-    const clientData = this.chatService.getClientAttributes(client.id);
-
-    if (!clientData) {
-      client.emit('server:error', 'Client data not found');
-      return;
-    }
-
-    if (clientData.authenticated) {
-      const validColors = ['red', 'green', 'blue', 'yellow', 'magenta', 'cyan', 'white', 'gray'];
-
-      if (!validColors.includes(data.color)) {
-        client.emit('server:error', `Invalid color! Valid options are: ${validColors.join(', ')}`);
-        return;
-      }
-
-      this.chatService.updateClientColor(client.id, data.color);
-
-      client.emit('server:success', `Your color has been changed to ${data.color}!`);
-    } else {
-      client.emit('server:error', 'Only authenticated users can change their color!');
-    }
+    this.chatHandler.color(client, data);
   }
 
   @SubscribeMessage('command:message')
@@ -154,40 +133,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @MessageBody() data: { to: string; msg: string },
     @ConnectedSocket() client: Socket
   ) {
-    const clientData = this.chatService.getClientAttributes(client.id);
-
-    if (!clientData) {
-      client.emit('server:error', 'Client data not found');
-      return;
-    }
-
-    const recipientId = this.chatService.getClientId(data.to);
-
-    if (!recipientId) {
-      client.emit('server:error', 'User not found');
-      return;
-    }
-
-    const recipient = this.chatService.getClientAttributes(recipientId);
-
-    if (!recipient) {
-      client.emit('server:error', 'User not found');
-      return;
-    }
-    
-    this.chatService.updateLastPrivateMessageFrom(recipientId, client.id);
-    this.chatService.updateLastPrivateMessageFrom(client.id, recipientId);
-
-    const cleanedMessage = this.chatService.filterMessage(data.msg);
-
-    const messageToSend = {
-      message: cleanedMessage,
-      sender: clientData.username,
-      color: clientData.color,
-    };
-
-    this.server.to(recipientId).emit('message:private:received', messageToSend);
-    client.emit('message:private:sent', messageToSend);
+    this.chatHandler.message(data, client, this.server);
   }
 
   @SubscribeMessage('command:reply')
@@ -195,62 +141,14 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @MessageBody() data: { msg: string },
     @ConnectedSocket() client: Socket
   ) {
-    const clientData = this.chatService.getClientAttributes(client.id);
-
-    if (!clientData) {
-      client.emit('server:error', 'Client data not found');
-      return;
-    }
-
-    if (!clientData.lastPrivateMessageFrom) {
-      client.emit('server:error', 'No one has sent you a private message yet!');
-      return;
-    }
-
-    const recipientId = clientData.lastPrivateMessageFrom;
-
-    const recipient = this.chatService.getClientAttributes(recipientId);
-
-    if (!recipient) {
-      client.emit('server:error', 'User left the chat!');
-      return;
-    }
-
-    this.chatService.updateLastPrivateMessageFrom(recipientId, client.id);
-    this.chatService.updateLastPrivateMessageFrom(client.id, recipientId);
-
-    const cleanedMessage = this.chatService.filterMessage(data.msg);
-
-    const messageToSend = {
-      message: cleanedMessage,
-      sender: clientData.username,
-      color: clientData.color,
-    };
-
-    this.server.to(recipientId).emit('message:private:received', messageToSend);
-    client.emit('message:private:sent', messageToSend);
+    this.chatHandler.reply(data, client, this.server);
   }
 
   @SubscribeMessage('command:list')
   handleListCommand(
     @ConnectedSocket() client: Socket
   ) {
-    const clientData = this.chatService.getClientAttributes(client.id);
-
-    if (!clientData) {
-      client.emit('server:error', 'Client data not found');
-      return;
-    }
-
-    let usernames = "";
-
-    this.chatService.getClients().forEach((attributes) => {
-      if (attributes.username) {
-        usernames += `${chalk[attributes.color](attributes.username)}, `;
-      }
-    });
-
-    client.emit('server:response', `Connected users(${this.chatService.getClients().size}): ${usernames.slice(0, -2)}`);
+    this.chatHandler.list(client);
   }
 
   @SubscribeMessage('command:kick')
@@ -258,33 +156,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @MessageBody() data: { user: string; reason: string },
     @ConnectedSocket() client: Socket
   ) {
-    const clientData = this.chatService.getClientAttributes(client.id);
-
-    if (!clientData) {
-      client.emit('server:error', 'Client data not found');
-      return;
-    }
-
-    if (clientData.role !== UserRole.ADMIN) {
-      client.emit('server:error', 'Only admins can kick users!');
-      return;
-    }
-
-    const targetClientId = this.chatService.getClientId(data.user);
-
-    if (!targetClientId) {
-      client.emit('server:error', 'User not found');
-      return;
-    }
-
-    const targetClient = this.chatService.getClientAttributes(targetClientId);
-
-    if (!targetClient) {
-      client.emit('server:error', 'User not found');
-      return;
-    }
-
-    this.server.to(targetClientId).emit('terminate', { reason: data.reason != '' ? data.reason : 'No reason provided' });
+    this.chatHandler.kick(data, client, this.server);
   }
 
   @SubscribeMessage('command:quote')
@@ -292,29 +164,6 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @MessageBody() data: { id: string; msg: string },
     @ConnectedSocket() client: Socket
   ) {
-    const clientData = this.chatService.getClientAttributes(client.id);
-
-    if (!clientData) {
-      client.emit('server:error', 'Client data not found');
-      return;
-    }
-
-    const messageToQuote = this.chatService.getMessageHistory().find(msg => msg.id === data.id);
-
-    if (!messageToQuote) {
-      client.emit('server:error', 'Message not found');
-      return;
-    }
-
-    const cleanedMessage = this.chatService.filterMessage(data.msg);
-
-    const messageToSend = {
-      quotedMsg: messageToQuote,
-      message: cleanedMessage,
-      color: clientData.color,
-      sender: clientData.username,
-    };
-
-    this.server.emit('message:quote', messageToSend);
+    this.chatHandler.quote(data, client, this.server);
   }
 }
