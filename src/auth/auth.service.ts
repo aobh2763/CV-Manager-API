@@ -25,9 +25,18 @@ export class AuthService {
     this.jwtSecret = this.configService.get<string>('auth.jwtSecret', {
       infer: true,
     })!;
-    this.jwtExpiresIn = this.configService.get<number>('auth.jwtExpiresIn', {
-      infer: true,
-    })!;
+    this.jwtExpiresIn = 60 * 60 * 24;
+  }
+
+  async decodeToken(token: string): Promise<{ id: number; role: UserRole }> {
+    try {
+      const decoded = await this.jwtService.verifyAsync(token, {
+        secret: this.jwtSecret,
+      });
+      return decoded;
+    } catch (error) {
+      throw new Error('Invalid token');
+    }
   }
 
   async login(loginRequest: LoginRequestDto): Promise<LoginResponseDto> {
