@@ -9,6 +9,8 @@ import { SkillModule } from './modules/skill/skill.module';
 import { AppDataSource } from './data/data-source';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from './auth/auth.module';
+import { ProjectModule } from './modules/project/project.module';
+import { GithubModule } from './modules/github/github.module';
 
 @Module({
   imports: [
@@ -19,8 +21,10 @@ import { AuthModule } from './auth/auth.module';
     SkillModule,
     UserModule,
     AuthModule,
+    ProjectModule,
+    GithubModule,
   ],
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule { }
