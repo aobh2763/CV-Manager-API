@@ -16,7 +16,6 @@ import { Cv } from './cv.entity';
 import { ApiBody, ApiTags, ApiExtraModels } from '@nestjs/swagger';
 import { CreateCvDto, UpdateCvDto } from './cv.dtos';
 import { AuthGuard } from '@nestjs/passport';
-import { fromEvent } from 'rxjs';
 
 @ApiTags('cv')
 @ApiExtraModels(CreateCvDto, UpdateCvDto)

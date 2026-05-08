@@ -36,14 +36,16 @@ export class CvService extends BaseService<Cv> {
       user: userreq,
       skills,
     });
-      this.cvEventsService.emit({
+    const savedCv = await this.cvRepository.save(cv);
+
+    this.cvEventsService.emit({
       type: 'created',
-      cvId: cv.id,
+      cvId: savedCv.id,
       ownerId: userreq.id,
-      payload: cv,
+      payload: savedCv,
     });
 
-    return this.cvRepository.save(cv);
+    return savedCv;
   }
 
   async updateWithDto(
@@ -68,16 +70,14 @@ export class CvService extends BaseService<Cv> {
         ? await this.skillRepository.findBy({ id: In(skillIds) })
         : [];
     }
-
-    Object.assign(cv, fields);
+    const updatedCv = await this.cvRepository.save(cv);
     this.cvEventsService.emit({
       type: 'updated',
-      cvId: cv.id,
-      ownerId: cv.user.id,
-      payload: cv,
+      cvId: updatedCv.id,
+      ownerId: userreq.id,
+      payload: updatedCv,
     });
-
-    return this.cvRepository.save(cv);
+    return updatedCv;
   }
 
   async findAllForCV(user: User): Promise<Cv[]> {

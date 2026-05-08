@@ -18,13 +18,12 @@ export class CvEventsService {
         if (user.role === UserRole.ADMIN) {
           return true;
         }
-
         return event.ownerId === user.id;
       }),
-
-      map((event) => ({
-        data: event,
-      })) as any,
+      map((event) => {
+        console.log("Emitting event for user", user.id, event);
+        return new MessageEvent('cv-event', { data: event });
+      }),
     );
   }
 }

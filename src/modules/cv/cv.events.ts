@@ -1,4 +1,4 @@
-export interface CvEvent {
+export type CvEvent = {
   type: 'created' | 'updated' | 'deleted';
   cvId: number;
   ownerId: number;
