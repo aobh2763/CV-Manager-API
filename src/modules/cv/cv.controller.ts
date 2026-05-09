@@ -64,6 +64,13 @@ export class CvController {
     return this.cvHistoryService.findByCvId(id);
   }
 
+  @Post('revert/:id')
+  @Role('admin')
+  @UseGuards(AuthGuard('jwt'))
+  revertCv(@Param('id') id: number) {
+    return this.cvHistoryService.revertOneStep(id);
+  }
+
   @Get(':id')
   @UseGuards(AuthGuard('jwt'))
   getOneForCv(@Param('id') id: number, @Request() req): Promise<Cv | null> {

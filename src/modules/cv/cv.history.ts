@@ -43,6 +43,20 @@ export class CvHistory {
   username: string;
 
   @ApiProperty({
+    description: 'Full snapshot of the CV at the time of the action',
+    example: {
+      id: 1,
+      name: 'Doe',
+      firstName: 'John',
+      age: 30,
+      job: 'Dev',
+      skills: [],
+    },
+  })
+  @Column({ type: 'json', nullable: true })
+  snapshot: Record<string, any>;
+
+  @ApiProperty({
     example: '2024-01-15T10:30:00.000Z',
     description: 'Timestamp of when the action occurred',
   })
