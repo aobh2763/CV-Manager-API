@@ -5,10 +5,12 @@ import {
   ManyToOne,
   ManyToMany,
   JoinTable,
+  OneToMany,
 } from 'typeorm';
 import { Skill } from '../skill/skill.entity';
 import { User } from '../user/user.entity';
 import { ApiProperty } from '@nestjs/swagger';
+import { Project } from '../project/project.entity';
 
 @Entity()
 export class Cv {
@@ -48,4 +50,7 @@ export class Cv {
   @ManyToOne(() => User, (user) => user.cvs, { eager: true })
   @ApiProperty({ type: () => User })
   user!: User;
+
+  @OneToMany(() => Project, project => project.cv)
+  projects: Project[];
 }

@@ -63,13 +63,13 @@ export class AuthService {
       },
       {
         secret: this.jwtSecret,
-        expiresIn: this.jwtExpiresIn,
+        expiresIn: this.jwtExpiresIn * 60 * 60,
       },
     );
 
     return {
       accessToken: token,
-      tokenExpiresIn: this.jwtExpiresIn,
+      tokenExpiresIn: this.jwtExpiresIn * 60 * 60,
     };
   }
 
@@ -79,7 +79,7 @@ export class AuthService {
         username: registerRequest.username,
         email: registerRequest.email,
         password: registerRequest.password,
-        role: UserRole.USER, // admin accounts should be predefined i think
+        role: UserRole.USER,
       });
     }
   }

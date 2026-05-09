@@ -22,6 +22,7 @@ export class CvService extends BaseService<Cv> {
 
   async createWithDto(dto: CreateCvDto, userreq: User): Promise<Cv> {
     const skillIds = dto.skillIds;
+    console.log(skillIds);
     const skills = await this.skillRepository.findBy({ id: In(skillIds) });
 
     const cv = this.cvRepository.create({

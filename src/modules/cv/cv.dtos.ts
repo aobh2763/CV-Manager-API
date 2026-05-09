@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { PartialType } from '@nestjs/swagger';
-import { IsNotEmpty } from 'class-validator';
+import { IsArray, IsNotEmpty } from 'class-validator';
 
 export class CreateCvDto {
   @ApiProperty({ example: 'Doe' })
@@ -27,6 +27,7 @@ export class CreateCvDto {
   @IsNotEmpty()
   path: string;
 
+  @IsArray()
   @ApiProperty({
     example: [1, 2, 3],
     description: 'IDs of the skills associated with this CV',
@@ -34,4 +35,4 @@ export class CreateCvDto {
   skillIds: number[];
 }
 
-export class UpdateCvDto extends PartialType(CreateCvDto) {}
+export class UpdateCvDto extends PartialType(CreateCvDto) { }
