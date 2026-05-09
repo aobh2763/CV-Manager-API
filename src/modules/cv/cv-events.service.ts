@@ -14,12 +14,8 @@ export class CvEventsService {
 
   streamForUser(user: any): Observable<MessageEvent> {
     return this.eventStream.asObservable().pipe(
-      filter((event) => {
-        if (user.role === UserRole.ADMIN) {
-          return true;
-        }
-        return event.ownerId === user.id;
-      }),
+      // eslint-disable-next-line prettier/prettier
+      filter((event) => user.role === UserRole.ADMIN ||  event.ownerId === user.id),
       map((event) => {
         console.log("Emitting event for user", user.id, event);
         return new MessageEvent('cv-event', { data: event });
